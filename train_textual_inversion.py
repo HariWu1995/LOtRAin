@@ -22,7 +22,7 @@ from library.config_util import (
 import library.custom_train_functions as custom_train_functions
 from library.custom_train_functions import apply_snr_weight
 
-imagenet_templates_small = [
+imagenet_object_templates = [
     "a photo of a {}",
     "a rendering of a {}",
     "a cropped photo of the {}",
@@ -52,7 +52,7 @@ imagenet_templates_small = [
     "a photo of a small {}",
 ]
 
-imagenet_style_templates_small = [
+imagenet_style_templates = [
     "a painting in the style of {}",
     "a rendering in the style of {}",
     "a cropped painting in the style of {}",
@@ -193,7 +193,9 @@ def train(args):
     # make captions: tokenstring tokenstring1 tokenstring2 ...tokenstringn という文字列に書き換える超乱暴な実装
     if use_template:
         print("use template for training captions. is object: {args.use_object_template}")
-        templates = imagenet_templates_small if args.use_object_template else imagenet_style_templates_small
+        templates = args.customized_templates if args.customized_templates else \
+                    imagenet_object_templates if args.use_object_template else \
+                    imagenet_style_templates
         replace_to = " ".join(token_strings)
         captions = []
         for tmpl in templates:
