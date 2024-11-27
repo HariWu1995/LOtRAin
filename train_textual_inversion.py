@@ -217,6 +217,7 @@ def train(args):
     if args.debug_dataset:
         train_util.debug_dataset(train_dataset_group, show_input_ids=True)
         return
+
     if len(train_dataset_group) == 0:
         print("No data found. Please verify arguments / 画像がありません。引数指定を確認してください")
         return
@@ -565,23 +566,12 @@ def setup_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--num_vectors_per_token", type=int, default=1, help="number of vectors per token / トークンに割り当てるembeddingsの要素数"
     )
-    parser.add_argument(
-        "--token_string",
-        type=str,
-        default=None,
-        help="token string used in training, must not exist in tokenizer / 学習時に使用されるトークン文字列、tokenizerに存在しない文字であること",
-    )
+    parser.add_argument("--token_string", type=str, default=None, help="token string used in training, must not exist in tokenizer / 学習時に使用されるトークン文字列、tokenizerに存在しない文字であること")
     parser.add_argument("--init_word", type=str, default=None, help="words to initialize vector / ベクトルを初期化に使用する単語、複数可")
-    parser.add_argument(
-        "--use_object_template",
-        action="store_true",
-        help="ignore caption and use default templates for object / キャプションは使わずデフォルトの物体用テンプレートで学習する",
-    )
-    parser.add_argument(
-        "--use_style_template",
-        action="store_true",
-        help="ignore caption and use default templates for stype / キャプションは使わずデフォルトのスタイル用テンプレートで学習する",
-    )
+
+    parser.add_argument("--customized_templates", nargs='+', default=[], help="Overwrite templates to generate prompt")
+    parser.add_argument("--use_object_template", action="store_true", help="ignore caption and use default templates for object / キャプションは使わずデフォルトの物体用テンプレートで学習する")
+    parser.add_argument("--use_style_template", action="store_true", help="ignore caption and use default templates for style / キャプションは使わずデフォルトのスタイル用テンプレートで学習する")
 
     return parser
 
@@ -591,5 +581,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     args = train_util.read_config_from_file(args, parser)
+
+    if len(args.customized_templates) == 0:
+        args.customized_templates = None
 
     train(args)
