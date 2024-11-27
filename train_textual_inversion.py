@@ -102,7 +102,7 @@ def train(args):
         init_token_ids = tokenizer.encode(args.init_word, add_special_tokens=False)
         if len(init_token_ids) > 1 and len(init_token_ids) != args.num_vectors_per_token:
             print(
-                f"token length for init words is not same to num_vectors_per_token, init words is repeated or truncated / 初期化単語のトークン長がnum_vectors_per_tokenと合わないため、繰り返しまたは切り捨てが発生します: length {len(init_token_ids)}"
+                f"token length for init words is not same to num_vectors_per_token, init words will be repeated or truncated / 初期化単語のトークン長がnum_vectors_per_tokenと合わないため、繰り返しまたは切り捨てが発生します: length {len(init_token_ids)}"
             )
     else:
         init_token_ids = None
