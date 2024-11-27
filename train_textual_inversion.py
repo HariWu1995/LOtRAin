@@ -110,9 +110,8 @@ def train(args):
     # add new word to tokenizer, count is num_vectors_per_token
     token_strings = [args.token_string] + [f"{args.token_string}{i+1}" for i in range(args.num_vectors_per_token - 1)]
     num_added_tokens = tokenizer.add_tokens(token_strings)
-    assert (
-        num_added_tokens == args.num_vectors_per_token
-    ), f"tokenizer has same word to token string. please use another one / 指定したargs.token_stringは既に存在します。別の単語を使ってください: {args.token_string}"
+    assert (num_added_tokens == args.num_vectors_per_token), \
+        f"tokenizer has same word to token string. please use another one / 指定したargs.token_stringは既に存在します。別の単語を使ってください: {args.token_string}"
 
     token_ids = tokenizer.convert_tokens_to_ids(token_strings)
     print(f"tokens are added: {token_ids}")
