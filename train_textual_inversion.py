@@ -15,10 +15,7 @@ from diffusers import DDPMScheduler
 import library.train_util as train_util
 import library.huggingface_util as huggingface_util
 import library.config_util as config_util
-from library.config_util import (
-    ConfigSanitizer,
-    BlueprintGenerator,
-)
+from library.config_util import ConfigSanitizer, BlueprintGenerator
 import library.custom_train_functions as custom_train_functions
 from library.custom_train_functions import apply_snr_weight
 
@@ -132,12 +129,11 @@ def train(args):
             token_embeds[token_id] = token_embeds[init_token_ids[i % len(init_token_ids)]]
             # print(token_id, token_embeds[token_id].mean(), token_embeds[token_id].min())
 
-    # load weights
-    if args.weights is not None:
-        embeddings = load_weights(args.weights)
-        assert len(token_ids) == len(
-            embeddings
-        ), f"num_vectors_per_token is mismatch for weights / 指定した重みとnum_vectors_per_tokenの値が異なります: {len(embeddings)}"
+    # load embedding
+    if args.init_embed is not None:
+        embeddings = load_weights(args.init_embed)
+        assert len(token_ids) == len(embeddings), \
+            f"num_vectors_per_token is mismatch for weights / 指定した重みとnum_vectors_per_tokenの値が異なります: {len(embeddings)}"
         # print(token_ids, embeddings.size())
         for token_id, embedding in zip(token_ids, embeddings):
             token_embeds[token_id] = embedding
@@ -562,12 +558,12 @@ def setup_parser() -> argparse.ArgumentParser:
         help="format to save the model (default is .pt) / モデル保存時の形式（デフォルトはpt）",
     )
 
-    parser.add_argument("--weights", type=str, default=None, help="embedding weights to initialize / 学習するネットワークの初期重み")
     parser.add_argument(
         "--num_vectors_per_token", type=int, default=1, help="number of vectors per token / トークンに割り当てるembeddingsの要素数"
     )
     parser.add_argument("--token_string", type=str, default=None, help="token string used in training, must not exist in tokenizer / 学習時に使用されるトークン文字列、tokenizerに存在しない文字であること")
     parser.add_argument("--init_word", type=str, default=None, help="words to initialize vector / ベクトルを初期化に使用する単語、複数可")
+    parser.add_argument("--init_embed", type=str, default=None, help="path to initialize embedding / 学習するネットワークの初期重み")
 
     parser.add_argument("--customized_templates", nargs='+', default=[], help="Overwrite templates to generate prompt")
     parser.add_argument("--use_object_template", action="store_true", help="ignore caption and use default templates for object / キャプションは使わずデフォルトの物体用テンプレートで学習する")
