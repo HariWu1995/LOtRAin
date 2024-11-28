@@ -2781,7 +2781,10 @@ def get_hidden_states(args: argparse.Namespace, input_ids, tokenizer, text_encod
     else:
         enc_out = text_encoder(input_ids, output_hidden_states=True, return_dict=True)
         encoder_hidden_states = enc_out["hidden_states"][-args.clip_skip]
-        encoder_hidden_states = text_encoder.text_model.final_layer_norm(encoder_hidden_states)
+        try:
+            encoder_hidden_states = text_encoder.text_model.final_layer_norm(encoder_hidden_states)
+        except AttributeError:
+            encoder_hidden_states = text_encoder.module.text_model.final_layer_norm(encoder_hidden_states)
 
     # bs*3, 77, 768 or 1024
     encoder_hidden_states = encoder_hidden_states.reshape((b_size, -1, encoder_hidden_states.shape[-1]))
