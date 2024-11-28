@@ -2695,7 +2695,7 @@ def prepare_accelerator(args: argparse.Namespace):
         mixed_precision=args.mixed_precision,
         log_with=log_with,
         logging_dir=logging_dir,
-        kwargs_handlers=DistributedDataParallelKwargs(find_unused_parameters=True),
+        kwargs_handlers=[DistributedDataParallelKwargs(find_unused_parameters=True)],
     )
 
     # accelerateの互換性問題を解決する
