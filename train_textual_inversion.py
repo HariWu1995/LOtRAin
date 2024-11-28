@@ -280,11 +280,18 @@ def train(args):
 
     # Freeze all parameters except for the token embeddings in text encoder
     text_encoder.requires_grad_(True)
-    text_encoder.text_model.encoder.requires_grad_(False)
-    text_encoder.text_model.final_layer_norm.requires_grad_(False)
-    text_encoder.text_model.embeddings.position_embedding.requires_grad_(False)
-    # text_encoder.text_model.embeddings.token_embedding.requires_grad_(True)
-
+    try:
+        text_encoder.text_model.encoder.requires_grad_(False)
+        text_encoder.text_model.final_layer_norm.requires_grad_(False)
+        text_encoder.text_model.embeddings.position_embedding.requires_grad_(False)
+        # text_encoder.text_model.embeddings.token_embedding.requires_grad_(True)
+    
+    except AttributeError:
+        text_encoder.module.text_model.encoder.requires_grad_(False)
+        text_encoder.module.text_model.final_layer_norm.requires_grad_(False)
+        text_encoder.module.text_model.embeddings.position_embedding.requires_grad_(False)
+        # text_encoder.text_model.embeddings.token_embedding.requires_grad_(True)
+        
     unet.requires_grad_(False)
     unet.to(accelerator.device, dtype=weight_dtype)
     if args.gradient_checkpointing:  # according to TI example in Diffusers, train is required
