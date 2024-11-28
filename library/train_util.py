@@ -2979,6 +2979,8 @@ def sample_images(
     """
     StableDiffusionLongPromptWeightingPipelineの改造版を使うようにしたので、clip skipおよびプロンプトの重みづけに対応した
     """
+    if not accelerator.is_main_process:
+        return
     if args.sample_every_n_steps is None and args.sample_every_n_epochs is None:
         return
     if args.sample_every_n_epochs is not None:
@@ -3056,7 +3058,10 @@ def sample_images(
         feature_extractor=None,
         requires_safety_checker=False,
     )
-    pipeline.to(device)
+    try:
+        pipeline.to(device)
+    except AttributeError:
+        pass
 
     save_dir = args.output_dir + "/sample"
     os.makedirs(save_dir, exist_ok=True)
@@ -3067,8 +3072,6 @@ def sample_images(
     with torch.no_grad():
         with accelerator.autocast():
             for i, prompt in enumerate(prompts):
-                if not accelerator.is_main_process:
-                    continue
                 prompt = prompt.strip()
                 if len(prompt) == 0 or prompt[0] == "#":
                     continue
