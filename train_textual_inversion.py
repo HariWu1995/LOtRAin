@@ -401,7 +401,7 @@ def train(args):
 
                 accelerator.backward(loss)
                 if accelerator.sync_gradients and args.max_grad_norm != 0.0:
-                    params_to_clip = text_encoder.get_input_embeddings().parameters()
+                    params_to_clip = unwrap_model(text_encoder).get_input_embeddings().parameters()
                     accelerator.clip_grad_norm_(params_to_clip, args.max_grad_norm)
 
                 optimizer.step()
@@ -410,9 +410,7 @@ def train(args):
 
                 # Let's make sure we don't update any embedding weights besides the newly added token
                 with torch.no_grad():
-                    unwrap_model(text_encoder).get_input_embeddings().weight[index_no_updates] = orig_embeds_params[
-                        index_no_updates
-                    ]
+                    unwrap_model(text_encoder).get_input_embeddings().weight[index_no_updates] = orig_embeds_params[index_no_updates]
 
             # Checks if the accelerator has performed an optimization step behind the scenes
             if accelerator.sync_gradients:
@@ -427,9 +425,9 @@ def train(args):
             if args.logging_dir is not None:
                 logs = {"loss": current_loss, "lr": float(lr_scheduler.get_last_lr()[0])}
                 if args.optimizer_type.lower() == "DAdaptation".lower():  # tracking d*lr value
-                    logs["lr/d*lr"] = (
-                        lr_scheduler.optimizers[0].param_groups[0]["d"] * lr_scheduler.optimizers[0].param_groups[0]["lr"]
-                    )
+                    logs["lr/d*lr"] = lr_scheduler.optimizers[0].param_groups[0]["d"] * \
+                                      lr_scheduler.optimizers[0].param_groups[0]["lr"]
+    
                 accelerator.log(logs, step=global_step)
 
             loss_total += current_loss
