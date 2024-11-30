@@ -1,8 +1,6 @@
 accelerate==0.15.0
-# diffusers==0.10.2
-git+https://github.com/huggingface/diffusers.git -U
-# transformers==4.26.0
-transformers==4.46.2
+diffusers==0.10.2
+transformers==4.26.0
 ftfy==6.1.1
 albumentations==1.3.1
 opencv-python==4.8.0.76
